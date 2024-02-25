@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class ParkMyCar {
     public static void main(String[] args) {
-        ParkingLotDetails parkingLot = null;
+        ParkingLotDetails parkingLot = new ParkingLotDetails();
         Scanner scanner = new Scanner(System.in);
         while (true) {
            try {
@@ -28,11 +28,9 @@ public class ParkMyCar {
                        break;
                    case CREATE_PARKING_LOT:
                        int capacity = Integer.parseInt(parts[1]);
-                       parkingLot = new ParkingLotDetails(capacity);
                        actionResponse = parkingLot.createParkingLot(capacity);
                        break;
                    case PARK:
-                       // Test
                        actionResponse = parkingLot.park(parts[1], parts[2]);
                        break;
                    case LEAVE:

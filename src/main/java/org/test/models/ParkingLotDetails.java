@@ -1,16 +1,18 @@
 package org.test.models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ParkingLotDetails {
     private int capacity;
     private Map<Integer, Car> slots;
     private Map<String, Integer> registrationToSlot;
-    private Map<String, String> colorToRegistration;
+    private Map<String, List<String>> colorToRegistration;
 
-    public ParkingLotDetails(int capacity) {
-        this.capacity = capacity;
+    public ParkingLotDetails() {
+        this.capacity = 6;
         this.slots = new HashMap<>();
         this.registrationToSlot = new HashMap<>();
         this.colorToRegistration = new HashMap<>();
@@ -26,27 +28,39 @@ public class ParkingLotDetails {
 
     public String park(String registration, String color) {
         if (slots.size() < capacity) {
-            int slot = slots.size() + 1;
+            int slot = findNextAvailableSlot();
             slots.put(slot, new Car(registration, color));
             registrationToSlot.put(registration, slot);
-
-            if (!colorToRegistration.containsKey(color)){
-                colorToRegistration.put(color, registration);
-            }else{
-                colorToRegistration.put(color, colorToRegistration.get(color) + ", " + registration);
-            }
+            colorToRegistration.computeIfAbsent(color, k -> new ArrayList<>()).add(registration);
             return "Allocated slot number: " + slot;
         } else {
             return "Sorry, parking lot is full";
         }
     }
 
+    private int findNextAvailableSlot() {
+        for (int i = 1; i <= capacity; i++) {
+            if (!slots.containsKey(i)) {
+                return i;
+            }
+        }
+        return -1; // No available slot
+    }
+
     public String leave(int slot) {
         if (slots.containsKey(slot)) {
             Car car = slots.remove(slot);
             registrationToSlot.remove(car.getRegistration());
-            colorToRegistration.computeIfPresent(car.getColor(), (k, v) -> v.replace(car.getRegistration() + ',', ""));
+
+            String color = car.getColor();
+            List<String> registrationsForColor = colorToRegistration.get(color);
+            registrationsForColor.remove(car.getRegistration());
+
+            if (registrationsForColor.isEmpty()) {
+                colorToRegistration.remove(color);
+            }
             return "Slot number " + slot + " is free";
+
         } else {
             return "Invalid slot number: " + slot;
         }
@@ -61,9 +75,11 @@ public class ParkingLotDetails {
         }
         return result.toString().trim();
     }
+
     public String registrationNumbersForCarsWithColour(String color) {
         if (colorToRegistration.containsKey(color)) {
-            return colorToRegistration.get(color).replaceAll(", $", "");
+            List<String> registrations = colorToRegistration.get(color);
+            return String.join(", ", registrations);
         } else {
             return "Not found";
         }
