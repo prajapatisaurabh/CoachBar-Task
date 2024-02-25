@@ -97,7 +97,7 @@ public class ParkingLotDetails {
         return result.length() > 0 ? result.substring(0, result.length() - 2) : "Not found";
     }
 
-    public Integer slotNumberForRegistrationNumber(String registration) {
+    public int slotNumberForRegistrationNumber(String registration) {
         return registrationToSlot.getOrDefault(registration, -1);
     }
 
